@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require("path");
 const nowPath = path.join(__dirname);
-
+const fileFilter = function(ele){
+  return ele == 'node_modules' || ele == '.git' || ele == '.vscode' || ele == 'findunuse.js' || ele == 'output.txt'
+}
 
 /* function findMatch(pa, fileName) {
-  console.log(pa)
   fs.readdir(pa, (err, menu) => {
-    console.log(!menu)
     if (!menu)
       return;
     menu.forEach((ele) => {
@@ -14,22 +14,17 @@ const nowPath = path.join(__dirname);
         return;
       } else {
         fs.stat(pa + "/" + ele, (err, info) => {
-          console.log(ele)
-          if (info.isDirectory()) { //文件夹则进入下一层
+          if (info.isDirectory()) {
             findMatch(pa + "/" + ele, fileName);
           } else {
-            console.log(ele)
             if (!ele.match(/\.html|\.js|\.css/)) {
-              console.log(ele)
               return;
             } else {
               let pathTemp = path.join(pa, ele);
-              let fileContent = fs.readFileSync(pathTemp, 'utf-8'); //读取页面内容
-              console.log(fileContent)
-              var re = new RegExp("\/" + fileName); //文件名正则
+              let fileContent = fs.readFileSync(pathTemp, 'utf-8');
+              var re = new RegExp("\/" + fileName);
               if (fileContent.match(re)) {
                 flag = false;
-                console.log(flag)
                 return;
               }
             }
@@ -45,7 +40,7 @@ function findMatch(pa, fileName) {
   var menu = fs.readdirSync(pa);
   if (menu) {
     menu.forEach((ele) => {
-      if (ele == 'node_modules' || ele == '.git' || ele == '.vscode' || ele == 'findunuse.js'||ele == 'output.txt') { //忽略的文件和文件夹
+      if (fileFilter(ele)) { //忽略的文件和文件夹
         return;
       } else {
         let pathTemp = path.join(pa, ele)
@@ -68,18 +63,16 @@ function findMatch(pa, fileName) {
   }
 }
 
-
-
-
 var flag = true,
-  resultText = '';
+  resultText = '',L = 0,L2=0;
 
 function readDir(pa) {
   fs.readdir(pa, (err, menu) => {
     if (!menu)
       return;
+      L2+=menu.length;
     menu.forEach((ele) => {
-      if (ele == 'node_modules' || ele == '.git' || ele == '.vscode' || ele == 'findunuse.js'|| ele == 'output.txt') { //忽略的文件和文件夹
+      if (fileFilter(ele)) {
         return;
       } else {
         let fileNow = path.join(pa, ele);
@@ -93,12 +86,17 @@ function readDir(pa) {
               flag = true;
               findMatch(nowPath, ele);
               if (flag) {
-                console.log(ele);
                 resultText += ele + '\n';
                 console.log(resultText)
-                fs.writeFile(path.join(nowPath,'output.txt'),resultText,function(err){
-                  if(err) console.err(err);
-                });
+                /* var a= fs.createWriteStream(path.join(nowPath,'output.txt'))
+                a.write(resultText) */
+                if(L2 == L){
+                  console.log("done!")
+                  fs.writeFile(path.join(nowPath, 'output.txt'), resultText, function (err) {
+                    if (err) console.err(err);
+                  });
+                }
+                
               }
             }
           }
@@ -108,4 +106,21 @@ function readDir(pa) {
   });
 }
 
+function getAllLength(pa) {
+  var menu = fs.readdirSync(pa);
+  if (!menu)
+    return;
+  L += menu.length;
+  menu.forEach((ele) => {
+    if (fileFilter(ele)) { //忽略的文件和文件夹
+      return;
+    } else {
+      let pathTemp = path.join(pa, ele)
+      if(fs.statSync(pathTemp).isDirectory()){
+        getAllLength(pathTemp);
+      }
+    }
+  });
+}
+getAllLength(nowPath);
 readDir(nowPath);
