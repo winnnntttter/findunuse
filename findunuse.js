@@ -45,7 +45,7 @@ function findMatch(pa, fileName) {
   var menu = fs.readdirSync(pa);
   if (menu) {
     menu.forEach((ele) => {
-      if (ele == 'node_modules' || ele == '.git' || ele == '.vscode'||ele == 'findunuse.js') { //忽略的文件和文件夹
+      if (ele == 'node_modules' || ele == '.git' || ele == '.vscode' || ele == 'findunuse.js'||ele == 'output.txt') { //忽略的文件和文件夹
         return;
       } else {
         let pathTemp = path.join(pa, ele)
@@ -71,17 +71,18 @@ function findMatch(pa, fileName) {
 
 
 
-var flag = true;
+var flag = true,
+  resultText = '';
 
 function readDir(pa) {
   fs.readdir(pa, (err, menu) => {
     if (!menu)
       return;
     menu.forEach((ele) => {
-      if (ele == 'node_modules' || ele == '.git' || ele == '.vscode' || ele == 'findunuse.js') { //忽略的文件和文件夹
+      if (ele == 'node_modules' || ele == '.git' || ele == '.vscode' || ele == 'findunuse.js'|| ele == 'output.txt') { //忽略的文件和文件夹
         return;
       } else {
-        let fileNow = path.join(pa,ele);
+        let fileNow = path.join(pa, ele);
         fs.stat(fileNow, (err, info) => {
           if (info.isDirectory()) { //文件夹则进入下一层
             readDir(fileNow);
@@ -93,6 +94,11 @@ function readDir(pa) {
               findMatch(nowPath, ele);
               if (flag) {
                 console.log(ele);
+                resultText += ele + '\n';
+                console.log(resultText)
+                fs.writeFile(path.join(nowPath,'output.txt'),resultText,function(err){
+                  if(err) console.err(err);
+                });
               }
             }
           }
