@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require("path");
-const nowPath = path.join(__dirname);
+const basePath = path.join(__dirname);
 const fileFilter = function(ele){
-  return ele == 'node_modules' || ele == '.git' || ele == '.vscode' || ele == 'findunuse.js' || ele == 'output.txt'
+  return ele == 'node_modules' || ele == '.git' || ele == '.vscode' || ele == 'findunuse.js' || ele == 'output.txt' || ele == 'deleteFile.js';
 }
 
 /* function findMatch(pa, fileName) {
@@ -84,15 +84,15 @@ function readDir(pa) {
               return;
             } else {
               flag = true;
-              findMatch(nowPath, ele);
+              findMatch(basePath, ele);
               if (flag) {
-                resultText += ele + '\n';
-                console.log(resultText)
-                /* var a= fs.createWriteStream(path.join(nowPath,'output.txt'))
+                console.log(ele)
+                resultText += fileNow + '\n';
+                /* var a= fs.createWriteStream(path.join(basePath,'output.txt'))
                 a.write(resultText) */
                 if(L2 == L){
                   console.log("done!")
-                  fs.writeFile(path.join(nowPath, 'output.txt'), resultText, function (err) {
+                  fs.writeFile(path.join(basePath, 'output.txt'), resultText, function (err) {
                     if (err) console.err(err);
                   });
                 }
@@ -122,5 +122,5 @@ function getAllLength(pa) {
     }
   });
 }
-getAllLength(nowPath);
-readDir(nowPath);
+getAllLength(basePath);
+readDir(basePath);
